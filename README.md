@@ -8,13 +8,14 @@ Supported languages/regions will currently only be Japan and United States but m
 
 The stages of this is
 1. Scrape all the publicly available data. We want to gather
-i. The laws passed by them and under them
-ii. Treaties formed with outside nations
-iii. Money recieved including salary/lobbying
-iv. Budget proposals
-v. Who did he assign to which posiiton
-vi. All records of talking in congress etc
-I may add other items here but this can differ based on country
+ -  The laws passed by them and under them
+ -  Treaties formed with outside nations
+ -  Money recieved including salary/lobbying
+ -  Criminal history/What was he sued for and did he win the case etc
+ -  Budget proposals
+ -  Who did he assign to which posiiton
+ -  All records of talking in congress etc
+I may add other items here but this can differ based on country/position
 
 For this step, I mainly want to only use government issued data. One issue is for some facts they might not be available there ex amount of money
 recieved from x company.
