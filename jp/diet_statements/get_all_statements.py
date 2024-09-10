@@ -74,21 +74,27 @@ def get_all_meetings():
         desc="Steps",
     )
     while i < all_records:
-        meetings = output["meetingRecord"]
-        for meeting in meetings:
-            nameOfHouse = meeting["nameOfHouse"]
-            date = meeting["date"]
-            nameOfMeeting = meeting["nameOfMeeting"]
-            filename = f"{diet_statements_dir}/{i}_{date}_{nameOfHouse}_{nameOfMeeting}.json"
-            with open(filename, "wb") as f:
-                f.write(json.dumps(meeting, ensure_ascii=False).encode("utf8"))
-            i += 1
-            progress_bar.update(1)
+        try:
+            meetings = output["meetingRecord"]
+            for meeting in meetings:
+                nameOfHouse = meeting["nameOfHouse"]
+                date = meeting["date"]
+                nameOfMeeting = meeting["nameOfMeeting"]
+                filename = f"{diet_statements_dir}/{i}_{date}_{nameOfHouse}_{nameOfMeeting}.json"
+                with open(filename, "wb") as f:
+                    f.write(json.dumps(meeting, ensure_ascii=False).encode("utf8"))
+                i += 1
+                progress_bar.update(1)
 
-        assert i == output['nextRecordPosition']
+            assert i == output['nextRecordPosition']
 
-        time.sleep(5)
-        output = json.loads(requests.get(base_url+str(i)).text)
+            time.sleep(5)
+            output = json.loads(requests.get(base_url+str(i)).text)
+        except KeyboardInterrupt as e:
+            raise KeyboardInterrupt(e)
+        except Exception as e:
+            print(e)
+            continue
 
 
 

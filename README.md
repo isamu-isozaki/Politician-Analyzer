@@ -15,7 +15,7 @@ The stages of this is
  -  Budget proposals
  -  Who did he assign to which posiiton
  -  All records of talking in congress etc
-I may add other items here but this can differ based on country/position
+I may add other items here but this can differ based on country/position. Also, it may be difficult to gather all the above.
 
 For this step, I mainly want to only use government issued data. One issue is for some facts they might not be available there ex amount of money
 recieved from x company.
