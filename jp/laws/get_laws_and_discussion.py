@@ -80,7 +80,7 @@ def get_bill_data_from_bill_id(bill_id: str, existing_bill_ids: list, all_bill_i
     output["lawlist"] = requests.get(f"{base_url}/law/api/v1/detail/lawlist?billIds={bill_id}").json()
     name = output["original"]["subject"]
     max_name_length = MAX_FILENAME_LENGTH - len(f"{i}__{bill_id}.json")
-    name = name[-max_name_length:]
+    name = name[-max_name_length:].replace("?", "").replace("!", "")
     filename = f"{bills_dir}/{i}_{name}_{bill_id}.json"
     with open(filename, "wb") as f:
         f.write(json.dumps(output, ensure_ascii=False).encode("utf8"))
@@ -146,7 +146,7 @@ def get_laws():
         output["revised"] = requests.get(f"{base_url}/law/api/v1/detail/reviced?lawId={law_id}").json()
         # I couldn't figure out what http://hourei.ndl.go.jp/law/api/v1/detail/lawlist does without any parameters. It does seem to make sense for bill ids as they provide the bill ids
         max_name_length = MAX_FILENAME_LENGTH - len(f"{i}__{law_id}.json")
-        name = name[-max_name_length:]
+        name = name[-max_name_length:].replace("?", "").replace("!", "")
         filename = f"{laws_dir}/{i}_{name}_{law_id}.json"
         with open(filename, "wb") as f:
             f.write(json.dumps(output, ensure_ascii=False).encode("utf8"))
@@ -155,7 +155,7 @@ def get_laws():
             get_bill_data_from_bill_id(bill_id, existing_bill_ids, all_bill_ids, i, bills_dir, delay_between_requests)
 
     progress_bar = tqdm(
-        range(len(all_law_ids)),
+        range(len(all_bill_ids)),
         desc="Bills steps",
     )
     for i, bill_id in tqdm(enumerate(all_bill_ids)):

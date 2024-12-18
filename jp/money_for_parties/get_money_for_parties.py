@@ -43,29 +43,56 @@ from tqdm.auto import tqdm
 import time
 
 def clean_name(text: str):
-    return text.replace("\n", "").replace(" ", "").replace("\u3000", "").replace('"', "")
+    return text.replace("\n", "").replace(" ", "").replace("\u3000", "").replace('"', "").replace('\r', "")
 def get_link_from_onclick(text: str):
     return text.split("window.open('")[1].split("',")[0]
 def get_balance_pdfs(balance_urls: list[tuple[str, str]]):
     base_url = "https://www.soumu.go.jp/senkyo/seiji_s/seijishikin"
+    time_sleep_length = 0.5
+
     for balance_url in tqdm(balance_urls):
         name, base_link = balance_url[0], balance_url[1]
+        if "定期公表" not in name:
+            continue
         os.makedirs("data/jp/money_for_parties/balance/"+name, exist_ok=True)
-        time.sleep(5)
+        time.sleep(time_sleep_length)
         response = requests.get(base_link)
         soup = BeautifulSoup(response.content, "html.parser").find_all("a", href=True)
         balance_dir = "data/jp/money_for_parties/balance/"+name
-        for a_elem in tqdm(soup):
-            pdf_name = balance_dir + "/" + clean_name(a_elem.text)+".pdf"
-            if os.path.exists(pdf_name):
-                continue
-            if not a_elem["href"].endswith("pdf"):
-                continue
-            pdf_link = base_url+a_elem["href"].split("..")[1]
-            time.sleep(5)
-            pdf_response = requests.get(pdf_link)
-            with open(pdf_name, 'wb') as f:
-                f.write(pdf_response.content)
+        if "定期公表" in name:
+            for a_elem in tqdm(soup):
+                if "reports" not in a_elem["href"]:
+                    continue
+                time.sleep(time_sleep_length)
+                pdf_link = base_url + a_elem["href"].split("seijishikin")[1]
+                response = requests.get(pdf_link)
+                balance_soup = BeautifulSoup(response.content, "html.parser").find_all("a", href=True)
+                for balance_a_elem in tqdm(balance_soup):
+                    pdf_name = balance_dir + "/" + clean_name(balance_a_elem.text)+".pdf"
+                    # print("pdf name ", pdf_name)
+                    if os.path.exists(pdf_name):
+                        continue
+                    if not balance_a_elem["href"].endswith("pdf"):
+                        continue
+                    pdf_link = base_url+balance_a_elem["href"].split("seijishikin")[1]
+
+                    time.sleep(time_sleep_length)
+                    pdf_response = requests.get(pdf_link)
+                    with open(pdf_name, 'wb') as f:
+                        f.write(pdf_response.content)
+        else:
+            for a_elem in tqdm(soup):
+
+                pdf_name = balance_dir + "/" + clean_name(a_elem.text)+".pdf"
+                if os.path.exists(pdf_name):
+                    continue
+                if not a_elem["href"].endswith("pdf"):
+                    continue
+                pdf_link = base_url+a_elem["href"].split("..")[1]
+                time.sleep(5)
+                pdf_response = requests.get(pdf_link)
+                with open(pdf_name, 'wb') as f:
+                    f.write(pdf_response.content)
 
 def get_use_of_grants(use_of_grants_urls: list[tuple[str, str]]):
     for use_of_grants_url in tqdm(use_of_grants_urls):

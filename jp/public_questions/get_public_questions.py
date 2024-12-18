@@ -109,8 +109,6 @@ def get_shuugiin_qna():
         question_names = []
         politician_names = []
         for j, (question_name_elem, politician_name_elem) in enumerate(zip(question_name_elems, politician_name_elems)):
-            if j == 0:
-                continue
             question_names.append(clean_name(question_name_elem.text))
             politician_names.append(clean_name(politician_name_elem.text))
 
@@ -122,42 +120,58 @@ def get_shuugiin_qna():
             answer_url = base_url + "/b{:03}{:03}.htm".format(i, j+1)
             question_urls.append(question_url)
             answer_urls.append(answer_url)
-
         for j, question_url in enumerate(question_urls):
+            question_name = question_names[j]
+            politician_name = politician_names[j]
+            filename = f"{question_dir}/{j}_{question_name}_{politician_name}.txt"
+            if os.path.exists(filename):
+                continue
             time.sleep(delay_between_requests)
             question_page = requests.get(question_url)
-            question_soup = BeautifulSoup(question_page.content, "html.parser")
-            question_elem = question_soup.find("div", {"id": "mainlayout"})
-            question_elem.find("div", {"id": "breadcrumb"}).decompose()
-            question_elem.find("h1").decompose()
-            link_elems = question_elem.find_all("div", {"class": "gh21divr"})
-            for link_elem in link_elems:
-                link_elem.decompose()
-
-            question_text = question_elem.text
+            if question_page.status_code != 200:
+                continue
+            try:
+                question_soup = BeautifulSoup(question_page.content, "html.parser")
+                question_elem = question_soup.find("div", {"id": "mainlayout"})
+                question_elem.find("div", {"id": "breadcrumb"}).decompose()
+                question_elem.find("h1").decompose()
+                link_elems = question_elem.find_all("div", {"class": "gh21divr"})
+                for link_elem in link_elems:
+                    link_elem.decompose()
+                question_text = question_elem.text
+                with open(filename, "w", encoding='utf-8') as f:
+                    f.write(question_text)
+            except Exception as e:
+                print("Error at ", question_url, " ", e)
+                continue
+        for j, answer_url in enumerate(answer_urls):
             question_name = question_names[j]
             politician_name = politician_names[j]
-            with open(f"{question_dir}/{j}_{question_name}_{politician_name}.txt", "w", encoding='utf-8') as f:
-                f.write(question_text)
-        for j, answer_url in enumerate(answer_urls):
+            filename = f"{answer_dir}/{j}_{question_name}_{politician_name}.txt"
+            if os.path.exists(filename):
+                continue
             time.sleep(delay_between_requests)
             answer_page = requests.get(answer_url)
-            answer_soup = BeautifulSoup(answer_page.content, "html.parser")
-            answer_elem = answer_soup.find("div", {"id": "mainlayout"})
-            answer_elem.find("div", {"id": "breadcrumb"}).decompose()
-            answer_elem.find("h1").decompose()
-            link_elems = answer_elem.find_all("div", {"class": "gh22divr"})
-            for link_elem in link_elems:
-                link_elem.decompose()
+            if answer_page.status_code != 200:
+                continue
+            try:
+                answer_soup = BeautifulSoup(answer_page.content, "html.parser")
+                answer_elem = answer_soup.find("div", {"id": "mainlayout"})
+                answer_elem.find("div", {"id": "breadcrumb"}).decompose()
+                answer_elem.find("h1").decompose()
+                link_elems = answer_elem.find_all("div", {"class": "gh22divr"})
+                for link_elem in link_elems:
+                    link_elem.decompose()
 
-            answer_text = answer_elem.text
-            question_name = question_names[j]
-            politician_name = politician_names[j]
-            with open(f"{answer_dir}/{j}_{question_name}_{politician_name}.txt", "w", encoding='utf-8') as f:
-                f.write(answer_text)
+                answer_text = answer_elem.text
+                with open(filename, "w", encoding='utf-8') as f:
+                    f.write(answer_text)
+            except Exception as e:
+                print("Error at ", answer_url, " ", e)
+                continue
         i += 1
 
 if __name__ == "__main__":
     os.makedirs(base_dir, exist_ok=True)
-    get_sangiin_qna()
+    # get_sangiin_qna()
     get_shuugiin_qna()
