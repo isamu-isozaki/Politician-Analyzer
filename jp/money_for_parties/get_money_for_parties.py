@@ -48,7 +48,7 @@ def get_link_from_onclick(text: str):
     return text.split("window.open('")[1].split("',")[0]
 def get_balance_pdfs(balance_urls: list[tuple[str, str]]):
     base_url = "https://www.soumu.go.jp/senkyo/seiji_s/seijishikin"
-    time_sleep_length = 0.5
+    time_sleep_length = 3
 
     for balance_url in tqdm(balance_urls):
         name, base_link = balance_url[0], balance_url[1]
