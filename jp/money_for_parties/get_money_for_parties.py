@@ -188,7 +188,7 @@ def get_balances_and_use_of_grants():
         link = base_url+a_elem["href"]
         use_of_grants_urls.append((name, link))
     get_balance_pdfs(balance_urls)
-    get_use_of_grants(use_of_grants_urls)
+    # get_use_of_grants(use_of_grants_urls)
 
 if __name__ == "__main__":
     os.makedirs("data", exist_ok=True)
