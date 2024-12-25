@@ -1,17 +1,12 @@
 from openai import OpenAI
 import base64
-from io import BytesIO
-import PIL
 import sys
-import PIL.Image
-from transformers import AutoTokenizer
 client = OpenAI(
     base_url="http://0.0.0.0:8000/v1",
     api_key="token-abc123",
 )
 import sys
 from io import StringIO
-import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import json
