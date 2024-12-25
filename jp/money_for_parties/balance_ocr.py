@@ -11,7 +11,7 @@ import pandas as pd
 import os
 import json
 from tqdm.auto import tqdm
-from jp.money_for_parties.schema import revenue_regex, revenue_json_schema, costs_regex, costs_json_schema
+from schema import revenue_regex, revenue_json_schema, costs_regex, costs_json_schema
 def encode_image(image_path):
     # from https://community.openai.com/t/how-to-load-a-local-image-to-gpt4-vision-using-api/533090/3
     with open(image_path, "rb") as image_file:
