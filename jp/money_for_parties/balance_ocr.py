@@ -502,8 +502,8 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=5):
 
 def main():
     image_paths = []
-    balance_dir = "data/jp/money_for_parties/balance"
-    temperature = float(sys.argv[1])
+    balance_dir = sys.argv[1]
+    temperature = float(sys.argv[2])
     for date_dir in os.listdir(balance_dir):
         date_path = f"{balance_dir}/{date_dir}"
         for party_dir in os.listdir(date_path):
