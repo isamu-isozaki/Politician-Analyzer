@@ -9,12 +9,14 @@ client = OpenAI(
     base_url="http://0.0.0.0:8000/v1",
     api_key="token-abc123",
 )
+import sys
 from io import StringIO
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import json
 from tqdm.auto import tqdm
+from jp.money_for_parties.schema import revenue_regex, revenue_json_schema, costs_regex, costs_json_schema
 def encode_image(image_path):
     # from https://community.openai.com/t/how-to-load-a-local-image-to-gpt4-vision-using-api/533090/3
     with open(image_path, "rb") as image_file:
@@ -60,49 +62,26 @@ def get_question_constraint(index):
         questions.append({"name": "国会議員関係政治団体に関する特例の適用期間", "type": str, "question": "国会議員関係政治団体に関する特例の適用期間は？国会議員関係政治団体に関する特例の適用期間のみを出力をしてください", "extra_body": {}})
     elif index == 2:
         # ensure 本年の収入額+前年からの繰越額 = 収入総額  = 支出総額+翌年への繰越額 if not redo
-        questions.append({"name": "収入総額", "type": int, "question": "収入総額は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "前年からの繰越額", "type": int, "question": "前年からの繰越額は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "本年の収入額", "type": int, "question": "本年の収入額は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        constraints.append({"type": "add", "lhs": [1, 2], "rhs": [0]})
-        questions.append({"name": "支出総額", "type": int, "question": "支出総額は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "翌年への繰越額", "type": int, "question": "翌年への繰越額は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        constraints.append({"type": "add", "lhs": [3, 4], "rhs": [0]})
-        
-        questions.append({"name": "個人の負担する党費又は会費の金額", "type": int, "question": "個人の負担する党費又は会費の金額は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "個人の負担する党費又は会費の員数", "type": int, "question": "個人の負担する党費又は会費の員数は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（ア）個人からの寄附", "type": int, "question": "（ア）個人からの寄附は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        # Ensure that below is smaller or equal to above
-        questions.append({"name": "（ア）個人からの（うち特定寄附）", "type": int, "question": "（ア）個人からの（うち特定寄附）は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（イ）法人その他の団体からの寄附", "type": int, "question": "（イ）法人その他の団体からの寄附は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（ウ）政治団体からの寄附", "type": int, "question": "（ウ）政治団体からの寄附は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        # Ensure （ア）＋（イ）＋（ウ） is equal to 小計
-        questions.append({"name": "小計　（ア）＋（イ）＋（ウ）", "type": int, "question": "小計　（ア）＋（イ）＋（ウ）は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        constraints.append({"type": "add", "lhs": [7, 9, 10], "rhs": [11]})
-        # less than or equal to
-        constraints.append({"type": "lte", "lhs": [8], "rhs": [7]})
-        # Ensure below is lower than above
-        questions.append({"name": "(寄附のうち寄附のあっせんによるもの）", "type": int, "question": "(寄附のうち寄附のあっせんによるもの）は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        constraints.append({"type": "lte", "lhs": [12], "rhs": [11]})
-        
-        questions.append({"name": "イ　政党匿名寄附", "type": int, "question": "イ　政党匿名寄附は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        # Ensure 小計＋イ　is below
-        questions.append({"name": "合計　（ア＋イ）", "type": int, "question": "合計　（ア＋イ）は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        constraints.append({"type": "add", "lhs": [11, 13], "rhs": [14]})
+        questions.append({"name": "収支の状況", "type": dict, "question":  f"Do an OCR to output a python dictionary. This is the schema: {revenue_json_schema}. 数字は分割せずにまとめてください。", "extra_body": {"guided_regex": revenue_regex}})
+        constraints.append({"type": "add", "lhs": ["収支の状況/1 収支の総括表/（前年からの繰越額）", "収支の状況/1 収支の総括表/（本年の収入額）"], "rhs": ["収支の状況/1 収支の総括表/収入総額"]})
+        constraints.append({"type": "add", "lhs": ["収支の状況/1 収支の総括表/支出総額", "収支の状況/1 収支の総括表/翌年への繰越額"], "rhs": ["収支の状況/1 収支の総括表/収入総額"]})
+        constraints.append({"type": "add", "lhs": ["収支の状況/2 収入項目別金額の内訳/(2)寄附/ア 寄附（イを除く。）の区分/（ア）個人からの寄附", "収支の状況/2 収入項目別金額の内訳/(2)寄附/ア 寄附（イを除く。）の区分/（イ）法人その他の団体からの寄附", "収支の状況/2 収入項目別金額の内訳/(2)寄附/ア 寄附（イを除く。）の区分/（ウ）政治団体からの寄附"], "rhs": ["収支の状況/2 収入項目別金額の内訳/(2)寄附/ア 寄附（イを除く。）の区分/小計（ア）+（イ）+（ウ）"]})
+        constraints.append({"type": "add", "lhs": ["収支の状況/2 収入項目別金額の内訳/(2)寄附/ア 寄附（イを除く。）の区分/小計（ア）+（イ）+（ウ）", "収支の状況/2 収入項目別金額の内訳/(2)寄附/イ 政党匿名寄附"], "rhs": ["収支の状況/2 収入項目別金額の内訳/(2)寄附/合計 （ア＋イ）"]})
     elif index == 3:
         # 事業からの収入（機関紙誌など）
         questions.append({"name": "事業からの収入（機関紙誌など）", "type": "csv", "question": "事業の種類,金額,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n事業の種類,金額,備考で始めてください", "extra_body": {
             "guided_regex": "```\n事業の種類,金額,備考\n([^,]*,[0-9]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": str, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "事業からの収入（機関紙誌など）/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": str, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "合計", "type": str, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。","extra_body":  {"guided_regex": "[0-9]*"}})
     elif index == 4:
         # 借入金
         questions.append({"name": "借入金", "type": "csv", "question": "借入先,金額,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n借入先,金額,備考で始めてください", "extra_body": {
             "guided_regex": "```\n借入先,金額,備考\n([^,]*,[0-9]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "借入金/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
     elif index == 5:
         # 本部又は支部からの交付金からの収入
@@ -110,18 +89,18 @@ def get_question_constraint(index):
             "guided_regex": "```\n交付金を供与した本部又は支部の名称,金額,年月日,主たる事務所の所在地\n([^,]*,[0-9]*,[^,]*,[^,]*\n)*```"
         }})
         # after parsing the sum of 金額 must be この頁の小計 and the 合計 must be the sum of all この頁の小計
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "本部又は支部からの交付金からの収入/金額", "rhs": "この頁の小計"})
+
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
-        
+
     elif index == 6:
         # その他の収入
         questions.append({"name": "その他の収入", "type": "csv", "question": "摘要,金額,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,金額,備考で始めてください", "extra_body": {
             "guided_regex": "```\n摘要,金額,備考\n([^,]*,[0-9]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "その他の収入/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "一件１０万円未満のものの有無", "type": str, "question": "一件１０万円未満のものという項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "一件１０万円未満のもの", "type": int, "question": "一件１０万円未満のものは？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
@@ -131,42 +110,25 @@ def get_question_constraint(index):
         questions.append({"name": "寄付の内約", "type": "csv", "question": "寄付者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n寄付者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考で始めてください", "extra_body": {
             "guided_regex": "```\n寄付者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "寄付の内約/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "その他の寄附の有無", "type": str, "question": "その他の寄附という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "その他の寄附", "type": int, "question": "その他の寄附は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
     elif index == 13:
-        # ensure 本年の収入額+前年からの繰越額 = 収入総額  = 支出総額+翌年への繰越額 if not redo
-        questions.append({"name": "（１）人件費", "type": int, "question": "（１）人件費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（２）光熱水費", "type": int, "question": "（２）光熱水費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（３）備品・消耗品費", "type": int, "question": "（３）備品・消耗品費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（４）事務所費", "type": int, "question": "（４）事務所費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "経常経費の小計", "type": int, "question": "経常経費の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        
-        constraints.append({"type": "add", "lhs": [0, 1, 2, 3], "rhs": [4]})
-        questions.append({"name": "（１）組織活動費", "type": int, "question": "（１）組織活動費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（２）選挙関係費", "type": int, "question": "（２）選挙関係費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（３）機関紙誌", "type": int, "question": "（３）機関紙誌の発行その他の事業費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "ア　機関紙誌の発行事業費", "type": int, "question": "ア　機関紙誌の発行事業費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "イ　宣伝事業費", "type": int, "question": "イ　宣伝事業費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "ウ　政治資金パーティー開催事業費", "type": int, "question": "ウ　政治資金パーティー開催事業費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "エ　その他の事業費", "type": int, "question": "エ　その他の事業費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（４）調査研究費", "type": int, "question": "（４）調査研究費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（５）寄附・交付金", "type": int, "question": "（５）寄附・交付金は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "（６）その他の経費", "type": int, "question": "（６）その他の経費は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "政治活動費の小計", "type": int, "question": "政治活動費の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        constraints.append({"type": "add", "lhs": [5, 6, 7, 12, 13, 14], "rhs": [15]})
-        constraints.append({"type": "add", "lhs": [4, 15], "rhs": [16]})
+        questions.append({"name": "支出の総括表", "type": dict, "question": "Do an OCR to output a python dictionary. 数字は分割せずにまとめてください。数字の項目が空白の場合０と出力してください。小計と合計も含めてください。", "extra_body": {"guided_regex": costs_regex}})
+
+        constraints.append({"type": "add", "lhs": ["支出の総括表/支出の総括表/1 経常経費/人件費", "支出の総括表/支出の総括表/1 経常経費/光熱水費", "支出の総括表/支出の総括表/1 経常経費/備品・消耗品費", "支出の総括表/支出の総括表/1 経常経費/事務所費"], "rhs": ["支出の総括表/支出の総括表/1 経常経費/小計"]})
+        constraints.append({"type": "add", "lhs": ["支出の総括表/支出の総括表/2 政治活動費/組織活動費", "支出の総括表/支出の総括表/2 政治活動費/選挙関係費", "支出の総括表/支出の総括表/2 政治活動費/機関紙誌の発行その他の事業費", "支出の総括表/支出の総括表/2 政治活動費/調査研究費", "支出の総括表/支出の総括表/2 政治活動費/寄附・交付金", "支出の総括表/支出の総括表/2 政治活動費/その他の経費"], "rhs": ["支出の総括表/支出の総括表/2 政治活動費/小計"]})
+        constraints.append({"type": "add", "lhs": ["支出の総括表/支出の総括表/1 経常経費/小計", "支出の総括表/支出の総括表/2 政治活動費/小計"], "rhs": ["支出の総括表/支出の総括表/2 政治活動費/合計"]})
     elif index == 14:
         # 経常経費（人件費を除く。）の内約
         questions.append({"name": "経常経費（人件費を除く。）の内約", "type": "csv", "question": "支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考で始めてください", "extra_body": {
             "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "経常経費（人件費を除く。）の内約/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "その他の支出の有無", "type": str, "question": "その他の支出という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "その他の支出", "type": int, "question": "その他の支出は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
@@ -177,8 +139,8 @@ def get_question_constraint(index):
         questions.append({"name": "政治活動費の内約", "type": "csv", "question": "支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出の目的,金額,年月日,支出で始めてください", "extra_body": {
             "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "政治活動費の内約/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "その他の支出の有無", "type": str, "question": "その他の支出という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "その他の支出", "type": int, "question": "その他の支出は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
@@ -188,8 +150,8 @@ def get_question_constraint(index):
         questions.append({"name": "本部又は支部に対して供与した交付金に係る支出の内約", "type": "csv", "question": "支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考で始めてください", "extra_body": {
             "guided_regex": "```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "金額", "rhs": 1})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "部又は支部に対して供与した交付金に係る支出の内約/金額", "rhs": "この頁の小計"})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
     elif index == 17:
@@ -211,10 +173,12 @@ def get_question_constraint(index):
         questions.append({"name": "資産等の内約", "type": "csv", "question": "摘要,金額,年月日,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,金額,年月日,備考で始めてください", "extra_body": {
             "guided_regex": "```\n摘要,金額,年月日,備考\n([^,]*,[0-9]*,[^,]*,[^,]*\n)*```"
         }})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        constraints.append({"type": "csv_add", "lhs": "資産等の内約/金額", "rhs": "この頁の小計"})
+
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
     return questions, constraints
 
-def get_content(image_url, temperature=0.5, debug=False):
+def get_content(image_url, temperature=0.5, debug=False, max_num_retries=5):
     # print("Processing", image_url)
     base64_image = encode_image(image_url)
     index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
@@ -236,49 +200,116 @@ def get_content(image_url, temperature=0.5, debug=False):
     if debug:
         print(f"Index found was {index}")
     questions, constraints = get_question_constraint(index)
-    output = {
-        "index": index,
-        "handwritten": handwritten,
-        "handwritten_corrected": handwritten_corrected
-    }
-    for question in questions:
-        while True:
-            try:
-                question_text, extra_body, name, data_type = question["question"], question["extra_body"], question["name"], question["type"]
-                chat_completion = get_answer2question(base64_image, question_text, extra_body, temperature=temperature)
-                
-                if data_type == "csv":
-                    chat_completion = chat_completion.replace("```\n", "").split("\n```")[0]
-                    if len(chat_completion) > 0:
-                        assert "," in chat_completion
+    num_retries = 0
+    while True:
+        try:
+            output = {
+                "index": index,
+                "handwritten": handwritten,
+                "handwritten_corrected": handwritten_corrected,
+                "failed": False
+            }
+            for question in questions:
+                while True:
+                    try:
+                        question_text, extra_body, name, data_type = question["question"], question["extra_body"], question["name"], question["type"]
+                        chat_completion = get_answer2question(base64_image, question_text, extra_body, temperature=temperature)
+
+                        if data_type == "csv":
+                            chat_completion = chat_completion.replace("```\n", "").split("\n```")[0]
+                            if len(chat_completion) > 0:
+                                assert "," in chat_completion
+                            if debug:
+                                print("chat completion was ", chat_completion)
+                            temp_path = StringIO(chat_completion)
+                            data = pd.read_csv(temp_path, sep=",")
+                            if data.isnull().values.any():
+                                print(chat_completion)
+                                raise Exception("Failed pandas format")
+                            data = data.to_dict()
+                            data_output = {}
+                            for key in data:
+                                data_output[key] = [data[key][key_output] for key_output in data[key]]
+                            data = data_output
+                        elif data_type == dict:
+                            data = chat_completion
+                            data = data.replace("```json\n", "")
+                            data = data.replace("\n```", "")
+                            data = json.loads(data)
+
+                        else:
+                            data = chat_completion
+
+                        output[name] = data
+                        if debug:
+                            print("name:", name, ",output:", data)
+                        break
+                    except KeyboardInterrupt as e:
+                        raise KeyboardInterrupt(e)
+                    except Exception as e:
+                        print("Got error", e)
+                        num_retries += 1
+                        if num_retries >= max_num_retries:
+                            output["failed"] = True
+                            return output
+                        continue
+            for constraint in constraints:
+                if constraint["type"] == "add":
                     if debug:
-                        print("chat completion was ", chat_completion)
-                    temp_path = StringIO(chat_completion)
-                    data = pd.read_csv(temp_path, sep=",")
-                    if data.isnull().values.any():
-                        print(chat_completion)
-                        raise Exception("Failed pandas format")
-                    data = data.to_dict()
-                else:
-                    data = chat_completion
-                    
-                output[name] = data
-                if debug:
-                    print("name:", name, ",output:", data)
-                break
-            except Exception as e:
-                print("Got error", e)
-                continue
+                        print("constraint:", constraint)
+                    lhs = 0
+                    for lhs_elem_name in constraint["lhs"]:
+                        lhs_elem_splits = lhs_elem_name.split("/")
+                        lhs_elem = output
+                        for lhs_elem_split in lhs_elem_splits:
+                            lhs_elem = lhs_elem[lhs_elem_split]
+                        if isinstance(lhs_elem, str):
+                            lhs_elem = lhs_elem.replace("円", "").replace("人", "")
+                        lhs += int(lhs_elem)
+                    rhs = 0
+                    for rhs_elem_name in constraint["rhs"]:
+                        rhs_elem_splits = rhs_elem_name.split("/")
+                        rhs_elem = output
+                        for rhs_elem_split in rhs_elem_splits:
+                            rhs_elem = rhs_elem[rhs_elem_split]
+                        if isinstance(rhs_elem, str):
+                            rhs_elem = rhs_elem.replace("円", "").replace("人", "")
+                        rhs += int(rhs_elem)
+                    if debug:
+                        print(lhs, rhs)
+                    if lhs != rhs:
+                        raise Exception(f"for {constraint} lhs and rhs do not add up for lhs: {lhs} and rhs: {rhs} for {image_url}")
+                elif constraint["type"] == "csv_add":
+                    output_dict, money_list = constraint["lhs"].split("/")[0], constraint["lhs"].split("/")[1]
+                    lhs = 0
+                    if debug:
+                        print("constraint:", constraint)
+                    for money_elem in output[output_dict][money_list]:
+                        lhs += int(money_elem)
+                    rhs = int(output[constraint["rhs"]])
+                    if debug:
+                        print(lhs, rhs)
+                    if lhs != rhs:
+                        raise Exception(f"for {constraint} lhs and rhs do not add up for lhs: {lhs} and rhs: {rhs} for {image_url}")
+            break
+        except KeyboardInterrupt as e:
+            raise KeyboardInterrupt(e)
+        except Exception as e:
+            print("Got error", e)
+            num_retries += 1
+            if num_retries >= max_num_retries:
+                output["failed"] = True
+                return output
+            continue
 
     if debug:
         print(f"Output {output}")
     return output
-def main():
-    balance_dir = sys.argv[1]
-    temperature = float(sys.argv[2])
-    tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2-VL-7B-Instruct-GPTQ-Int4")
 
+def main():
     image_paths = []
+    balance_dir = "data/jp/money_for_parties/balance"
+    temperature = float(sys.argv[1])
     for date_dir in os.listdir(balance_dir):
         date_path = f"{balance_dir}/{date_dir}"
         for party_dir in os.listdir(date_path):
@@ -292,11 +323,9 @@ def main():
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
         if os.path.exists(json_path):
             continue
-        try:
-            output = get_content(image_path, temperature=temperature, debug=False)
-            with open(json_path, "w") as f:
-                json.dump(output, f, indent=6)
-        except:
-            continue
+        output = get_content(image_path, temperature=temperature, debug=True)
+        with open(json_path, "w") as f:
+            json.dump(output, f, indent=6)
+
 if __name__ == "__main__":
     main()
