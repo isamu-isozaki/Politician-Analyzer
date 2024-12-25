@@ -374,29 +374,30 @@ def get_question_constraint(index):
 
 def get_content(image_url, temperature=0.5, debug=False, max_num_retries=5):
     # print("Processing", image_url)
-    base64_image = encode_image(image_url)
-    index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
-        "guided_regex": "[0-9]+"
-    }))
-    handwritten = get_answer2question(base64_image, "手書きの箇所はありますか？’あります’か’ありません’でのみ答えてください。", {
-        "guided_choice": ["あります", "ありません"]
-    }) == "あります"
-    handwritten_corrected = get_answer2question(base64_image, "手書きで修正した箇所はありますか？’あります’か’ありません’でのみ答えてください。", {
-        "guided_choice": ["あります", "ありません"]
-    }) == "あります"
-    while index >= 21:
-        index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
-            "guided_regex": "[0-9]+"
-        }))
-    if index not in [1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 20]:
-        print(f"Got index {index} for {image_url}")
-        raise Exception(f"Got index {index} for {image_url}")
-    if debug:
-        print(f"Index found was {index}")
-    questions, constraints = get_question_constraint(index)
     num_retries = 0
+
     while True:
         try:
+            base64_image = encode_image(image_url)
+            index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
+                "guided_regex": "[0-9]+"
+            }))
+            handwritten = get_answer2question(base64_image, "手書きの箇所はありますか？’あります’か’ありません’でのみ答えてください。", {
+                "guided_choice": ["あります", "ありません"]
+            }) == "あります"
+            handwritten_corrected = get_answer2question(base64_image, "手書きで修正した箇所はありますか？’あります’か’ありません’でのみ答えてください。", {
+                "guided_choice": ["あります", "ありません"]
+            }) == "あります"
+            while index >= 21:
+                index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
+                    "guided_regex": "[0-9]+"
+                }))
+            if index not in [1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 20]:
+                print(f"Got index {index} for {image_url}")
+                raise Exception(f"Got index {index} for {image_url}")
+            if debug:
+                print(f"Index found was {index}")
+            questions, constraints = get_question_constraint(index)
             output = {
                 "index": index,
                 "handwritten": handwritten,

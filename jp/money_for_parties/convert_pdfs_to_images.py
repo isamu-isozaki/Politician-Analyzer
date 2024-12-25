@@ -22,5 +22,6 @@ def convert_pdfs_to_images(balance_dir):
                     images[i].save(file_image_dirs+f"/{i}.jpg", "JPEG")
 if __name__ == "__main__":
     balance_dir = "data/jp/money_for_parties/balance"
+    # adding a while True loop for incase the balance directory updates with more files
     while True:
         convert_pdfs_to_images(balance_dir)
