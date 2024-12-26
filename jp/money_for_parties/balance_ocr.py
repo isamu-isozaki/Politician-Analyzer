@@ -372,7 +372,7 @@ def get_question_constraint(index):
         questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
     return questions, constraints
 
-def get_content(image_url, temperature=0.5, debug=False, max_num_retries=5):
+def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
     # print("Processing", image_url)
     num_retries = 0
 
