@@ -518,7 +518,7 @@ def main():
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
         if os.path.exists(json_path):
             continue
-        output = get_content(image_path, temperature=temperature, debug=True)
+        output = get_content(image_path, temperature=temperature, debug=False)
         with open(json_path, "w") as f:
             json.dump(output, f, indent=6)
 
