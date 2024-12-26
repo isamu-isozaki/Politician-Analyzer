@@ -370,6 +370,11 @@ def get_question_constraint(index):
         constraints.append({"type": "csv_add", "lhs": "資産等の内約/金額", "rhs": "この頁の小計"})
 
         questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+    elif index == 19:
+        # 資産等の内約
+        questions.append({"name": "不動産の利用の現状", "type": "csv", "question": "摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格で始めてください", "extra_body": {
+            "guided_regex": "```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格\n([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[0-9]*\n)*```"
+        }})
     return questions, constraints
 
 def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
@@ -392,7 +397,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                 index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
                     "guided_regex": "[0-9]+"
                 }))
-            if index not in [1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 20]:
+            if index not in [1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 19, 20]:
                 print(f"Got index {index} for {image_url}")
                 raise Exception(f"Got index {index} for {image_url}")
             if debug:
