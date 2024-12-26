@@ -494,8 +494,13 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                     if debug:
                         print("constraint:", constraint)
                     for money_elem in output[output_dict][money_list]:
-                        lhs += int(money_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", ""))
-                    rhs = int(output[constraint["rhs"].replace("円", "").replace("人", "").replace(",", "").replace("、", "")])
+                        if isinstance(money_elem, str):
+                            money_elem = money_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                        lhs += int(money_elem)
+                    rhs = output[constraint["rhs"]]
+                    if isinstance(rhs, str):
+                        rhs = rhs.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                    rhs = int(rhs)
                     if debug:
                         print(lhs, rhs)
                     if lhs != rhs:
