@@ -473,7 +473,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                         for lhs_elem_split in lhs_elem_splits:
                             lhs_elem = lhs_elem[lhs_elem_split]
                         if isinstance(lhs_elem, str):
-                            lhs_elem = lhs_elem.replace("円", "").replace("人", "")
+                            lhs_elem = lhs_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
                         lhs += int(lhs_elem)
                     rhs = 0
                     for rhs_elem_name in constraint["rhs"]:
@@ -482,7 +482,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                         for rhs_elem_split in rhs_elem_splits:
                             rhs_elem = rhs_elem[rhs_elem_split]
                         if isinstance(rhs_elem, str):
-                            rhs_elem = rhs_elem.replace("円", "").replace("人", "")
+                            rhs_elem = rhs_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
                         rhs += int(rhs_elem)
                     if debug:
                         print(lhs, rhs)
@@ -494,8 +494,8 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                     if debug:
                         print("constraint:", constraint)
                     for money_elem in output[output_dict][money_list]:
-                        lhs += int(money_elem)
-                    rhs = int(output[constraint["rhs"]])
+                        lhs += int(money_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", ""))
+                    rhs = int(output[constraint["rhs"].replace("円", "").replace("人", "").replace(",", "").replace("、", "")])
                     if debug:
                         print(lhs, rhs)
                     if lhs != rhs:
