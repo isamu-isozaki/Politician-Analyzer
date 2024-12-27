@@ -509,7 +509,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
         except KeyboardInterrupt as e:
             raise KeyboardInterrupt(e)
         except Exception as e:
-            print("Got error", e)
+            print("Got error", e, f"for {image_url}")
             num_retries += 1
             if num_retries >= max_num_retries:
                 output["failed"] = True
