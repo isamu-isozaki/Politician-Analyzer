@@ -554,6 +554,7 @@ def main():
                     continue
             else:
                 continue
+        print("image path is ", image_path)
         output = get_content(image_path, temperature=temperature, debug=False, max_num_retries=max_num_retries)
         with open(json_path, "w") as f:
             json.dump(output, f, indent=6)
