@@ -541,8 +541,9 @@ def main():
             party_path = f"{date_path}/{party_dir}"
             if os.path.isdir(party_path):
                 for image_name in os.listdir(party_path):
-                    image_path = f"{party_path}/{image_name}"
-                    image_paths.append(image_path)
+                    if image_name.endswith(".jpg"):
+                      image_path = f"{party_path}/{image_name}"
+                      image_paths.append(image_path)
     for image_path in tqdm(image_paths):
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
@@ -554,7 +555,6 @@ def main():
                     continue
             else:
                 continue
-        print("image path is ", image_path)
         output = get_content(image_path, temperature=temperature, debug=False, max_num_retries=max_num_retries)
         with open(json_path, "w") as f:
             json.dump(output, f, indent=6)
