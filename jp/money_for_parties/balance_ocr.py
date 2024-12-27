@@ -344,7 +344,7 @@ def get_question_constraint(index):
         questions.append({"name": "本部又は支部に対して供与した交付金に係る支出の内約", "type": "csv", "question": "支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考で始めてください", "extra_body": {
             "guided_regex": "```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```"
         }})
-        constraints.append({"type": "csv_add", "lhs": "部又は支部に対して供与した交付金に係る支出の内約/金額", "rhs": "この頁の小計"})
+        constraints.append({"type": "csv_add", "lhs": "本部又は支部に対して供与した交付金に係る支出の内約/金額", "rhs": "この頁の小計"})
         questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
         questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
@@ -474,6 +474,8 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                             lhs_elem = lhs_elem[lhs_elem_split]
                         if isinstance(lhs_elem, str):
                             lhs_elem = lhs_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                            if lhs_elem == "":
+                              lhs_elem = 0
                         lhs += int(lhs_elem)
                     rhs = 0
                     for rhs_elem_name in constraint["rhs"]:
@@ -483,6 +485,8 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                             rhs_elem = rhs_elem[rhs_elem_split]
                         if isinstance(rhs_elem, str):
                             rhs_elem = rhs_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                            if rhs_elem == "":
+                              rhs_elem = 0
                         rhs += int(rhs_elem)
                     if debug:
                         print(lhs, rhs)
@@ -496,10 +500,14 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                     for money_elem in output[output_dict][money_list]:
                         if isinstance(money_elem, str):
                             money_elem = money_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                            if money_elem == "":
+                                money_elem = 0
                         lhs += int(money_elem)
                     rhs = output[constraint["rhs"]]
                     if isinstance(rhs, str):
                         rhs = rhs.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                    if rhs == "":
+                      rhs = 0
                     rhs = int(rhs)
                     if debug:
                         print(lhs, rhs)
@@ -524,6 +532,9 @@ def main():
     image_paths = []
     balance_dir = sys.argv[1]
     temperature = float(sys.argv[2])
+    redo_failed = int(sys.argv[3])
+    max_num_retries = int(sys.argv[3])
+
     for date_dir in os.listdir(balance_dir):
         date_path = f"{balance_dir}/{date_dir}"
         for party_dir in os.listdir(date_path):
@@ -536,8 +547,14 @@ def main():
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
         if os.path.exists(json_path):
-            continue
-        output = get_content(image_path, temperature=temperature, debug=False)
+            if redo_failed:
+                with open(json_path, "r") as f:
+                    data = json.load(f)
+                if not data["failed"]:
+                    continue
+            else:
+                continue
+        output = get_content(image_path, temperature=temperature, debug=False, max_num_retries=max_num_retries)
         with open(json_path, "w") as f:
             json.dump(output, f, indent=6)
 
