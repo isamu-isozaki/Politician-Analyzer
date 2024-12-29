@@ -384,12 +384,12 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
     while True:
         try:
             base64_image = encode_image(image_url)
-            index_exists = get_answer2question(base64_image, "上に’（その’で始まり数字が書かれている場所がありますか？’あります’か’ありません’でのみ答えてください。", {
-                "guided_choice": ["あります", "ありません"]
-            }) == "あります"
-            if not index_exists:
-              raise Exception("Index did not exist")
-              return {"failed": True}
+            # index_exists = get_answer2question(base64_image, "上に’（その’で始まり数字が書かれている場所がありますか？’あります’か’ありません’でのみ答えてください。", {
+            #     "guided_choice": ["あります", "ありません"]
+            # }) == "あります"
+            # if not index_exists:
+            #   raise Exception("Index did not exist")
+            #   return {"failed": True}
 
             index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
                 "guided_regex": "[0-9]+"
@@ -416,10 +416,10 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                 "handwritten_corrected": handwritten_corrected,
                 "failed": False
             }
-            if handwritten or handwritten_corrected:
-              raise Exception("handwritten")
-              output["failed"] = True
-              return output
+            # if handwritten or handwritten_corrected:
+            #   raise Exception("handwritten")
+            #   output["failed"] = True
+            #   return output
             for question in questions:
                 while True:
                     try:
