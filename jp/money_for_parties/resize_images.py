@@ -14,7 +14,7 @@ def main():
             if os.path.isdir(party_path) and not ("_factor_1_" in party_path):
                 resized_images_dir = party_path+f"_factor_1_{factor}"
                 os.makedirs(resized_images_dir, exist_ok=True)
-                for image_name in os.listdir(party_path):
+                for image_name in tqdm(os.listdir(party_path)):
                     if image_name.endswith(".jpg"):
                         image_path = f"{party_path}/{image_name}"
                         target_image_path = image_path.replace(party_path, resized_images_dir)
