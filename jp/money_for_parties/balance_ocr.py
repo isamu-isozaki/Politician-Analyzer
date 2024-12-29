@@ -533,17 +533,22 @@ def main():
     balance_dir = sys.argv[1]
     temperature = float(sys.argv[2])
     redo_failed = int(sys.argv[3])
-    max_num_retries = int(sys.argv[3])
+    max_num_retries = int(sys.argv[4])
+    factor = int(sys.argv[5])
 
     for date_dir in os.listdir(balance_dir):
         date_path = f"{balance_dir}/{date_dir}"
         for party_dir in os.listdir(date_path):
             party_path = f"{date_path}/{party_dir}"
-            if os.path.isdir(party_path):
-                for image_name in os.listdir(party_path):
-                    if image_name.endswith(".jpg"):
-                      image_path = f"{party_path}/{image_name}"
-                      image_paths.append(image_path)
+            if not os.path.isdir(party_path):
+                continue
+            if factor != 0:
+                if not party_path.endswith(f"_factor_1_{factor}"):
+                    continue
+            for image_name in os.listdir(party_path):
+                if image_name.endswith(".jpg"):
+                  image_path = f"{party_path}/{image_name}"
+                  image_paths.append(image_path)
     for image_path in tqdm(image_paths):
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
