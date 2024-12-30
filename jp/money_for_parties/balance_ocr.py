@@ -376,7 +376,8 @@ def get_question_constraint(index):
             "guided_regex": "```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格\n([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[0-9]*\n)*```"
         }})
     return questions, constraints
-
+def convert_to_digit(string):
+    return ''.join(filter(str.isdigit, string))
 def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
     # print("Processing", image_url)
     num_retries = 0
@@ -475,7 +476,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                         for lhs_elem_split in lhs_elem_splits:
                             lhs_elem = lhs_elem[lhs_elem_split]
                         if isinstance(lhs_elem, str):
-                            lhs_elem = lhs_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                            lhs_elem = convert_to_digit(lhs_elem)
                             if lhs_elem == "":
                               lhs_elem = 0
                         lhs += int(lhs_elem)
@@ -486,7 +487,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                         for rhs_elem_split in rhs_elem_splits:
                             rhs_elem = rhs_elem[rhs_elem_split]
                         if isinstance(rhs_elem, str):
-                            rhs_elem = rhs_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                            rhs_elem = convert_to_digit(rhs_elem)
                             if rhs_elem == "":
                               rhs_elem = 0
                         rhs += int(rhs_elem)
@@ -501,13 +502,13 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                         print("constraint:", constraint)
                     for money_elem in output[output_dict][money_list]:
                         if isinstance(money_elem, str):
-                            money_elem = money_elem.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                            money_elem = convert_to_digit(money_elem)
                             if money_elem == "":
                                 money_elem = 0
                         lhs += int(money_elem)
                     rhs = output[constraint["rhs"]]
                     if isinstance(rhs, str):
-                        rhs = rhs.replace("円", "").replace("人", "").replace(",", "").replace("、", "")
+                        rhs = convert_to_digit(rhs)
                     if rhs == "":
                       rhs = 0
                     rhs = int(rhs)
