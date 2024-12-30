@@ -547,6 +547,9 @@ def main():
             if factor != 0:
                 if not party_path.endswith(f"_factor_1_{factor}"):
                     continue
+            else:
+              if "_factor_1" in party_path:
+                    continue
             for image_name in os.listdir(party_path):
                 if image_name.endswith(".jpg"):
                   image_path = f"{party_path}/{image_name}"
