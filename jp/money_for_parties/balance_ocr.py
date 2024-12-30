@@ -436,8 +436,8 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                             temp_path = StringIO(chat_completion)
                             data = pd.read_csv(temp_path, sep=",")
                             if data.isnull().values.any():
-                                print(chat_completion)
-                                raise Exception("Failed pandas format")
+                                print(data)
+                                raise Exception("Got nan values in pandas")
                             data = data.to_dict()
                             data_output = {}
                             for key in data:
