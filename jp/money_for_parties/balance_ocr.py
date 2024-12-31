@@ -437,6 +437,8 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                             data = pd.read_csv(temp_path, sep=",")
                             if data.isnull().values.any():
                                 data = data.replace(pd.NA, 'N/A')
+                                if "金額" in data.columns:
+                                  data["金額"] = data["金額"].replace('N/A', '0')
                             data = data.to_dict()
                             data_output = {}
                             for key in data:
