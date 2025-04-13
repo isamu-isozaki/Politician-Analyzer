@@ -407,6 +407,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                 }))
             if index not in [1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16, 17, 18, 19, 20]:
                 print(f"Got index {index} for {image_url}")
+                output["index"] = index
                 raise Exception(f"Got index {index} for {image_url}")
             if debug:
                 print(f"Index found was {index}")
