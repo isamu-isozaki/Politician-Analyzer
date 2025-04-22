@@ -432,7 +432,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
             #   return {"failed": True}
 
             index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
-                "guided_regex": "[0-9,]+"
+                "guided_regex": "[0-9]+"
             }))
             handwritten = get_answer2question(base64_image, "手書きの箇所はありますか？’あります’か’ありません’でのみ答えてください。", {
                 "guided_choice": ["あります", "ありません"]
