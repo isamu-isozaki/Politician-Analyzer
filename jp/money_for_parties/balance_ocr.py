@@ -598,6 +598,7 @@ def main():
                   if image_name.endswith(".jpg"):
                     image_path = f"{party_path}/{image_name}"
                     image_paths.append(image_path)
+    print("redo failed ", redo_failed)
     for image_path in tqdm(image_paths):
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
@@ -609,6 +610,7 @@ def main():
                     continue
             else:
                 continue
+        print("Parsing image")
         output = get_content(image_path, temperature=temperature, debug=bool(debug), max_num_retries=max_num_retries)
         with open(json_path, "w") as f:
             json.dump(output, f, indent=6)
