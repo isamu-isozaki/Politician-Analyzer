@@ -11,6 +11,7 @@ import pandas as pd
 import os
 import json
 from tqdm.auto import tqdm
+import numpy as np
 from outlines.fsm.json_schema import build_regex_from_schema
 # generated from 1. Having the model output the json format it prefers and
 # 2. I went to https://www.liquid-technologies.com/online-json-to-schema-converter
