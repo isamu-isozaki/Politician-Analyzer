@@ -606,6 +606,7 @@ def main():
             if redo_failed:
                 with open(json_path, "r") as f:
                     data = json.load(f)
+                print("got data ", data)
                 if not data["failed"]:
                     continue
             else:
