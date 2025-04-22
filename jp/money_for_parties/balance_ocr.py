@@ -327,16 +327,6 @@ def get_question_constraint(index):
         questions.append({"name": "政党匿名寄附の内訳", "type": "csv", "question": "政党匿名寄附を受けた場所,金額,年月日,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n政党匿名寄附を受けた場所,金額,年月日,備考で始めてください", "extra_body": {
             "guided_regex": "```\n政党匿名寄附を受けた場所,金額,年月日,備考\n([^,]*,[0-9]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
-        constraints.append({"type": "csv_add", "lhs": "政党匿名寄附の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-    elif index == 10:
-        # 機関紙誌の発行その他の事業による収入のうち特定パーティーの対価に係る収入の内訳
-        questions.append({"name": "機関紙誌の発行その他の事業による収入のうち特定パーティーの対価に係る収入の内訳", "type": "csv", "question": "特定パーティーの名称,対価に係る収入の金額,対価の支払いをした者の数,開催年月日,開催場所,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n特定パーティーの名称,対価に係る収入の金額,対価の支払いをした者の数,開催年月日,開催場所,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n特定パーティーの名称,対価に係る収入の金額,対価の支払いをした者の数,開催年月日,開催場所,備考\n([^,]*,[0-9]*,[0-9]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
-        }})
-        constraints.append({"type": "csv_add", "lhs": "機関紙誌の発行その他の事業による収入のうち特定パーティーの対価に係る収入の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-    elif index == 11:
         # 政治資金パーティーの対価に係る収入の内訳
         questions.append({"name": "政治資金パーティーの対価に係る収入の内訳", "type": "csv", "question": "対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考で始めてください", "extra_body": {
             "guided_regex": "```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
@@ -416,7 +406,7 @@ def get_question_constraint(index):
 
         questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
     elif index == 19:
-        # 資産等の内訳
+        # 不動産の利用の現状
         questions.append({"name": "不動産の利用の現状", "type": "csv", "question": "摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格で始めてください", "extra_body": {
             "guided_regex": "```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格\n([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[0-9]*\n)*```[\s\S]*"
         }})
@@ -585,23 +575,29 @@ def main():
     redo_failed = int(sys.argv[3])
     max_num_retries = int(sys.argv[4])
     factor = int(sys.argv[5])
-
-    for date_dir in os.listdir(balance_dir):
-        date_path = f"{balance_dir}/{date_dir}"
-        for party_dir in os.listdir(date_path):
-            party_path = f"{date_path}/{party_dir}"
-            if not os.path.isdir(party_path):
-                continue
-            if factor != 0:
-                if not party_path.endswith(f"_factor_1_{factor}"):
-                    continue
-            else:
-              if "_factor_1" in party_path:
-                    continue
-            for image_name in os.listdir(party_path):
-                if image_name.endswith(".jpg"):
-                  image_path = f"{party_path}/{image_name}"
-                  image_paths.append(image_path)
+    debug = bool(sys.argv[6])
+    file_name = None
+    if len(sys.argv) > 7:
+      file_name = sys.argv[7]
+    if file_name is not None:
+      image_path = [file_name]
+    else:
+      for date_dir in os.listdir(balance_dir):
+          date_path = f"{balance_dir}/{date_dir}"
+          for party_dir in os.listdir(date_path):
+              party_path = f"{date_path}/{party_dir}"
+              if not os.path.isdir(party_path):
+                  continue
+              if factor != 0:
+                  if not party_path.endswith(f"_factor_1_{factor}"):
+                      continue
+              else:
+                if "_factor_1" in party_path:
+                      continue
+              for image_name in os.listdir(party_path):
+                  if image_name.endswith(".jpg"):
+                    image_path = f"{party_path}/{image_name}"
+                    image_paths.append(image_path)
     for image_path in tqdm(image_paths):
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
@@ -613,7 +609,7 @@ def main():
                     continue
             else:
                 continue
-        output = get_content(image_path, temperature=temperature, debug=False, max_num_retries=max_num_retries)
+        output = get_content(image_path, temperature=temperature, debug=bool(debug), max_num_retries=max_num_retries)
         with open(json_path, "w") as f:
             json.dump(output, f, indent=6)
 
