@@ -474,7 +474,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                             if debug:
                                 print("chat completion was ", chat_completion)
                             temp_path = StringIO(chat_completion)
-                            data = pd.read_csv(temp_path, sep=",")
+                            data = pd.read_csv(temp_path, sep=",", thousands=',')
                             data = data.replace({np.nan: 'N/A'})
                             if debug:
                               print("panda dataframe is")
