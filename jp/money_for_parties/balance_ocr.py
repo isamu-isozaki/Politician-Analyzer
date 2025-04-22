@@ -472,6 +472,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
                             temp_path = StringIO(chat_completion)
                             data = pd.read_csv(temp_path, sep=",")
                             if debug:
+                              print("panda dataframe is")
                               print(data)
                             if data.isnull().values.any():
                                 data = data.replace(pd.NA, 'N/A')
