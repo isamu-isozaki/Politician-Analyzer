@@ -603,6 +603,7 @@ def main():
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
         if os.path.exists(json_path):
+            print("json path exists")
             if redo_failed:
                 with open(json_path, "r") as f:
                     data = json.load(f)
