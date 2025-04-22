@@ -265,87 +265,87 @@ def get_question_constraint(index):
     elif index == 3:
         # 事業からの収入（機関紙誌など）
         questions.append({"name": "事業からの収入（機関紙誌など）", "type": "csv", "question": "事業の種類,金額,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n事業の種類,金額,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n事業の種類,金額,備考\n([^,]*,[0-9]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n事業の種類,金額,備考\n([^,]*,[0-9,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "事業からの収入（機関紙誌など）/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": str, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "合計", "type": str, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。","extra_body":  {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "この頁の小計", "type": str, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
+        questions.append({"name": "合計", "type": str, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。","extra_body":  {"guided_regex": "[0-9,]*"}})
     elif index == 4:
         # 借入金
         questions.append({"name": "借入金", "type": "csv", "question": "借入先,金額,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n借入先,金額,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n借入先,金額,備考\n([^,]*,[0-9]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n借入先,金額,備考\n([^,]*,[0-9,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "借入金/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 5:
         # 本部又は支部からの交付金からの収入
         questions.append({"name": "本部又は支部からの交付金からの収入", "type": "csv", "question": "交付金を供与した本部又は支部の名称,金額,年月日,主たる事務所の所在地をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n交付金を供与した本部又は支部の名称,金額,年月日,主たる事務所の所在地で始めてください", "extra_body": {
-            "guided_regex": "```\n交付金を供与した本部又は支部の名称,金額,年月日,主たる事務所の所在地\n([^,]*,[0-9]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n交付金を供与した本部又は支部の名称,金額,年月日,主たる事務所の所在地\n([^,]*,[0-9,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         # after parsing the sum of 金額 must be この頁の小計 and the 合計 must be the sum of all この頁の小計
         constraints.append({"type": "csv_add", "lhs": "本部又は支部からの交付金からの収入/金額", "rhs": "この頁の小計"})
 
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
 
     elif index == 6:
         # その他の収入
         questions.append({"name": "その他の収入", "type": "csv", "question": "摘要,金額,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,金額,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n摘要,金額,備考\n([^,]*,[0-9]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n摘要,金額,備考\n([^,]*,[0-9,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "その他の収入/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "一件１０万円未満のものの有無", "type": str, "question": "一件１０万円未満のものという項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "一件１０万円未満のもの", "type": int, "question": "一件１０万円未満のものは？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "一件１０万円未満のもの", "type": int, "question": "一件１０万円未満のものは？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 7:
         # 寄附の内訳
         questions.append({"name": "寄附の内訳", "type": "csv", "question": "寄附者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n寄附者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n寄附者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n寄附者の氏名（又は名称）,金額,年月日,住所（又は所在地）,職業（又は代表者の氏名）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "寄附の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "その他の寄附の有無", "type": str, "question": "その他の寄附という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "その他の寄附", "type": int, "question": "その他の寄附は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "その他の寄附", "type": int, "question": "その他の寄附は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 8:
         # 寄附のうち寄附のあっせんによるものの内訳
         questions.append({"name": "あっせん者の区分", "type": str, "question": "あっせん者の区分は？個人、法人・その他の団体、政治団体のうち一つを出力してください。", "extra_body": {"guided_choice": ["個人", "法人・その他の団体", "政治団体"]}})
         questions.append({"name": "寄附のうち寄附のあっせんによるものの内訳", "type": "csv", "question": "寄附のあっせん者の氏名（又は名称）,金額,提供年月日,集めた期間,住所（又は所在地）,職業（又は代表者の氏名）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n寄附のあっせん者の氏名（又は名称）,金額,提供年月日,集めた期間,住所（又は所在地）,職業（又は代表者の氏名）,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n寄附のあっせん者の氏名（又は名称）,金額,提供年月日,集めた期間、住所（又は所在地）,職業（又は代表者の氏名）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n寄附のあっせん者の氏名（又は名称）,金額,提供年月日,集めた期間、住所（又は所在地）,職業（又は代表者の氏名）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "寄附のうち寄附のあっせんによるものの内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "その他の寄附の有無", "type": str, "question": "その他の寄附という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "その他の寄附", "type": int, "question": "その他の寄附は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "その他の寄附", "type": int, "question": "その他の寄附は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 9:
         # 政党匿名寄附の内訳
         questions.append({"name": "政党匿名寄附の内訳", "type": "csv", "question": "政党匿名寄附を受けた場所,金額,年月日,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n政党匿名寄附を受けた場所,金額,年月日,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n政党匿名寄附を受けた場所,金額,年月日,備考\n([^,]*,[0-9]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n政党匿名寄附を受けた場所,金額,年月日,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         # 政治資金パーティーの対価に係る収入の内訳
         questions.append({"name": "政治資金パーティーの対価に係る収入の内訳", "type": "csv", "question": "対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,年月日,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "政治資金パーティーの対価に係る収入の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 12:
         # 政治資金パーティーの対価に係る収入のうち対価の支払のあっせんによるものの内訳
         questions.append({"name": "政治資金パーティーの名称", "type": str, "question": "政治資金パーティーの名称は何ですか？", "extra_body": {}})
         questions.append({"name": "対価の支払のあっせん者の区分", "type": str, "question": "対価の支払のあっせん者の区分は何ですか？", "extra_body": {}})
 
         questions.append({"name": "政治資金パーティーの対価に係る収入のうち対価の支払のあっせんによるものの内訳", "type": "csv", "question": "対価の支払をした者の氏名（団体にあっては、その名称）,金額,提供年月日,集めた期間,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。金額は句読点なしで数字のみで出力してください。年月日は/で分けてください。説明は含めずcsvのみを出力してください。出力は```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,提供年月日,集めた期間,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,提供年月日,集めた期間,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n対価の支払をした者の氏名（団体にあっては、その名称）,金額,提供年月日,集めた期間,住所（団体にあっては、主たる事務所の所在地）,職業（団体にあっては、代表者の氏名）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "政治資金パーティーの対価に係る収入のうち対価の支払のあっせんによるものの内訳/金額", "rhs": "この頁の小計または合計"})
-        questions.append({"name": "この頁の小計または合計", "type": int, "question": "この頁の小計または合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計または合計", "type": int, "question": "この頁の小計または合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
     elif index == 13:
         questions.append({"name": "支出の総括表", "type": dict, "question": "Do an OCR to output a python dictionary. 数字は分割せずにまとめてください。数字の項目が空白の場合０と出力してください。小計と合計も含めてください。", "extra_body": {"guided_regex": costs_regex}})
 
@@ -355,38 +355,38 @@ def get_question_constraint(index):
     elif index == 14:
         # 経常経費（人件費を除く。）の内訳
         questions.append({"name": "経常経費（人件費を除く。）の内訳", "type": "csv", "question": "支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（団体にあっては、その名称）,支出を受けたものの住所（団体にあっては、主たる事務所の所在地）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "経常経費（人件費を除く。）の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "その他の支出の有無", "type": str, "question": "その他の支出という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "その他の支出", "type": int, "question": "その他の支出は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "その他の支出", "type": int, "question": "その他の支出は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 15:
         #　政治活動費の内訳
         # "guided_choice": ["有", "無"]}})
         # questions.append({"name": "政治活動費の内訳", "type": "csv", "question": "支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出の目的,金額,年月日,支出で始めてください", "extra_body": {
-        #     "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+        #     "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         # }})
         questions.append({"name": "政治活動費の内訳", "type": "csv", "question": "支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出の目的,金額,年月日,支出で始めてください", "extra_body": {
             "guided_regex": "```\n支出の目的,金額,年月日,支出を受けたものの氏名（又は名称）,支出を受けたものの住所（又は名称）,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "政治活動費の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "その他の支出の有無", "type": str, "question": "その他の支出という項目はありますか？’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "その他の支出", "type": int, "question": "その他の支出は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "その他の支出", "type": int, "question": "その他の支出は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 16:
         # 本部又は支部に対して供与した交付金に係る支出の内訳
         questions.append({"name": "本部又は支部に対して供与した交付金に係る支出の内訳", "type": "csv", "question": "支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考\n([^,]*,[0-9]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n支出項目,金額,年月日,交付金の供与を受けた本部又は支部の名称,主たる事務所の所在地,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "本部又は支部に対して供与した交付金に係る支出の内訳/金額", "rhs": "この頁の小計"})
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
         questions.append({"name": "合計の有無", "type": str, "question": "合計という項目はありますか？この頁の小計ではなく合計という項目です。’あります’か’ありません’のみで出力してください。", "extra_body": {"guided_choice": ["あります", "ありません"]}})
-        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]*"}})
+        questions.append({"name": "合計", "type": int, "question": "合計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]*"}})
     elif index == 17:
         # 資産等の状況
         questions.append({"name": "ア　土地の有無", "type": str, "question": "ア　土地の有無は？有か無でのみ答えてください。", "extra_body": {"guided_choice": ["有", "無"]}})
@@ -404,15 +404,15 @@ def get_question_constraint(index):
     elif index == 18:
         # 資産等の内訳
         questions.append({"name": "資産等の内訳", "type": "csv", "question": "摘要,金額,年月日,備考をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,金額,年月日,備考で始めてください", "extra_body": {
-            "guided_regex": "```\n摘要,金額,年月日,備考\n([^,]*,[0-9]*,[^,]*,[^,]*\n)*```[\s\S]*"
+            "guided_regex": "```\n摘要,金額,年月日,備考\n([^,]*,[0-9,]*,[^,]*,[^,]*\n)*```[\s\S]*"
         }})
         constraints.append({"type": "csv_add", "lhs": "資産等の内訳/金額", "rhs": "この頁の小計"})
 
-        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9]+"}})
+        questions.append({"name": "この頁の小計", "type": int, "question": "この頁の小計は？句読点なしの数字のみで出力してください。もし空白なら0と出力してください。", "extra_body": {"guided_regex": "[0-9,]+"}})
     elif index == 19:
         # 不動産の利用の現状
         questions.append({"name": "不動産の利用の現状", "type": "csv", "question": "摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格をCSV形式で出力してください。情報がない行,計や合計を含めないでください。年月日は/で分けてください。金額は句読点なしで数字のみで出力してください。説明は含めずcsvのみを出力してください。出力は```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格で始めてください", "extra_body": {
-            "guided_regex": "```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格\n([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[0-9]*\n)*```[\s\S]*"
+            "guided_regex": "```\n摘要,用途,使用者と当該資金管理団体及びその代表者との関係、使用者ごとの用途、使用者ごとの使用面積、使用者ごとの使用の対価の価格\n([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[0-9,]*\n)*```[\s\S]*"
         }})
     return questions, constraints
 def convert_to_digit(string):
@@ -432,7 +432,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
             #   return {"failed": True}
 
             index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
-                "guided_regex": "[0-9]+"
+                "guided_regex": "[0-9,]+"
             }))
             handwritten = get_answer2question(base64_image, "手書きの箇所はありますか？’あります’か’ありません’でのみ答えてください。", {
                 "guided_choice": ["あります", "ありません"]
@@ -442,7 +442,7 @@ def get_content(image_url, temperature=0.5, debug=False, max_num_retries=3):
             }) == "あります"
             while index >= 21:
                 index = int(get_answer2question(base64_image, "上の’（その’で始まる箇所の数字を出力してください。数字のみを出力してください。", {
-                    "guided_regex": "[0-9]+"
+                    "guided_regex": "[0-9,]+"
                 }))
             if index not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]:
                 print(f"Got index {index} for {image_url}")
