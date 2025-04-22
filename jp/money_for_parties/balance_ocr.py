@@ -583,7 +583,7 @@ def main():
     redo_failed = int(sys.argv[3])
     max_num_retries = int(sys.argv[4])
     factor = int(sys.argv[5])
-    debug = bool(sys.argv[6])
+    debug = bool(int(sys.argv[6]))
     file_name = None
     if len(sys.argv) > 7:
       file_name = sys.argv[7]
