@@ -584,10 +584,11 @@ def main():
     max_num_retries = int(sys.argv[4])
     factor = int(sys.argv[5])
     debug = bool(int(sys.argv[6]))
+    start_index = int(sys.argv[7])
+
     file_name = None
-    if len(sys.argv) > 7:
-      file_name = sys.argv[7]
-      start_index = int(sys.argv[8])
+    if len(sys.argv) > 8:
+      file_name = sys.argv[8]
     if file_name is not None:
       image_paths = [file_name]
     else:
