@@ -587,7 +587,7 @@ def main():
     file_name = None
     if len(sys.argv) > 7:
       file_name = sys.argv[7]
-      start_index = int(args.argv[8])
+      start_index = int(sys.argv[8])
     if file_name is not None:
       image_paths = [file_name]
     else:
@@ -607,6 +607,7 @@ def main():
                   if image_name.endswith(".jpg"):
                     image_path = f"{party_path}/{image_name}"
                     image_paths.append(image_path)
+    image_paths = image_paths[start_index:]
     for image_path in tqdm(image_paths):
         temperature_str = str(temperature).replace(".", "_")
         json_path = image_path.replace(".jpg", f"_temperature_{temperature_str}.json")
