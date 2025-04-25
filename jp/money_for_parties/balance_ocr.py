@@ -587,6 +587,7 @@ def main():
     file_name = None
     if len(sys.argv) > 7:
       file_name = sys.argv[7]
+      start_index = int(args.argv[8])
     if file_name is not None:
       image_paths = [file_name]
     else:
